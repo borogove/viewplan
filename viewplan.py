@@ -214,9 +214,9 @@ if __name__ == "__main__":
     parser.add_argument( '--start', help="time to start the plan", default="in 1 hour" )
     #parser.add_argument( '--end', help="time to end the plan", default="in 3 hours" )
     # Control categories of viewing targets.
-    parser.add_argument( '--stars', help="include interesting stars in plan", action='store_const',const=True,default=False )
-    parser.add_argument( '--planets', help="include planets and the moon in plan", action='store_const',const=True,default=True )
-    parser.add_argument( '--dsos', help="include nebulae and other DSOs in plan", action='store_const',const=True,default=True )
+    parser.add_argument( '--stars', help="include interesting stars in plan", action='store_true',default=False )
+    parser.add_argument( '--planets', help="include planets and the moon in plan", action='store_true',default=False )
+    parser.add_argument( '--dsos', help="include nebulae and other DSOs in plan", action='store_true',default=False )
     # Avoid listing many very dim targets. 
     parser.add_argument( '--starlimit', help="magnitude limit for stars", type=float,default=2.5 )
     parser.add_argument( '--dsolimit', help="magnitude limit for DSOs", type=float,default=5 )                  
@@ -228,6 +228,10 @@ if __name__ == "__main__":
     # TODO add an RA/dec display option
         
     options = parser.parse_args( sys.argv[1:] )  
+    
+    if not (options.stars or options.planets or options.dsos):
+        options.planets = True
+        options.dsos = True        
 
     cal = parsedatetime.Calendar()
     
@@ -235,7 +239,9 @@ if __name__ == "__main__":
     options.start_time = get_ephem_time( time.mktime(start_st) )
 
     # end_st,kind = cal.parse(options.end)
-    # options.end_time = get_ephem_time( time.mktime(end_st) )               
+    # options.end_time = get_ephem_time( time.mktime(end_st) )  
+    
+                 
     
     print "Your viewing plan:"
     #print " viewing from %s until %s (UTC)"%(options.start_time,options.end_time)

@@ -1,6 +1,13 @@
 ## Viewplan
 
-Viewplan is a Python script for generating telescope viewing plans for amateur astronomers. It lets you specify the time and location for the viewing, and various constraints on the target; it provides RA, declination, and other information for each target.
+Viewplan is a Python script for generating telescope viewing plans for amateur astronomers. It lets you specify the time and location for the viewing, and various constraints on the target; it provides RA, declination, and other information for each target. 
+
+### Dependencies
+
+Viewplan requires the following third party Python packages:
+
+* [PyEphem](http://rhodesmill.org/pyephem/) - This does the heavy astronomical lifting.
+* [parsedatetime](https://github.com/bear/parsedatetime) - This provides the handy natural language time parsing on the command line.
 
 ### Examples
 
@@ -9,7 +16,7 @@ it impossible to see faint clusters, but you wouldn't mind seeing some bright do
 stars.  
 
 ~~~
-python viewplan.py --city Boston --start "in 15 minutes" --dsolimit 4 --stars --starlimit 1.8
+python viewplan.py --city Boston --start "in 15 minutes" --planets --dsos --dsolimit 4 --stars --starlimit 1.8
 Your viewing plan:
  viewing from 2015/6/7 05:45:26 (UTC)
  viewing from Boston
@@ -27,7 +34,44 @@ Your viewing plan:
     Andromeda Galaxy    51°55'55.5"    20°17'24.0"    3.5    45mm         spiral galaxy
               Saturn   212°51'44.0"    22°49'14.9"    0.1     3mm                planet
                 Moon   132°09'15.4"    20°19'51.2"  -12.4     7mm                  moon
+~~~ 
+
+### Options
+
 ~~~
+usage: viewplan.py [-h] 
+                   [--city CITY]
+                   [--lat LAT]
+                   [--lon LON]
+                   [--elevation ELEVATION]
+                   [--start START]
+                   [--stars]
+                   [--planets]
+                   [--dsos]
+                   [--starlimit STARLIMIT]
+                   [--dsolimit DSOLIMIT] 
+                   [--minalt MINALT]
+                   [--maxalt MAXALT]
+~~~
+                        
+##### Location Options
+The viewing location can be provided either with a city name such as `--city Boston` or a latitude/longitude/elevation coordinate set ("ICBM coordinates") such as `--lat 33:27:00 --lon -112:04:00 --elevation 331`.
+
+The city name must be one of the (relatively few) cities in the PyEphem database. Latitude and longitude are given in "degrees:minutes:seconds" format (positive longitude east), and elevation in meters above sea level.  
+
+If neither city nor coordinates are given, the script assumes you're viewing from my backyard in Oakland, CA.
+
+##### Time Options
+
+The viewing start time can be given in natural and relative language, e.g. `--start 9pm` or `--start "in 2 hours"` or `--start "tuesday 11pm"` (the quotation marks are required if there are spaces in the time description). Local time is assumed. 
+
+##### Filter Options
+
+You can request that planets, "interesting" stars, and other deep space objects (DSOs) such as galaxies, nebulae and clusters be listed, using the `--planets`, `--stars`, and `--dsos` options. If none of those three options are provided, planets and DSOs will be listed. 
+
+By default, stars below magnitude 2.5 and DSOs below magnitude 5 are filtered out. The limiting magnitudes can be set, for instance including dimmer stars with `--starlimit 3.5` or keeping only the brightest DSOs with `--dsolimit 4.5`. 
+
+Only targets whose altitude (elevation angle) are within a set range will be shown. This is handy if your local horizon is obscured by walls, trees, etc., or if your telescope mount isn't capable of elevating all the way to zenith. `--minalt 10` sets a floor 10 degrees above the horizon; `--maxalt 80` sets an upper limit of 80 degrees above the horizon. The defaults are 20 and 70 degrees. 
 
 ### Future Work
 
