@@ -7,7 +7,9 @@ Viewplan is a Python script for generating telescope viewing plans for amateur a
 Viewplan requires the following third party Python packages:
 
 * [PyEphem](http://rhodesmill.org/pyephem/) - This does the heavy astronomical lifting.
-* [parsedatetime](https://github.com/bear/parsedatetime) - This provides the handy natural language time parsing on the command line.
+* [parsedatetime](https://github.com/bear/parsedatetime) - This provides the handy natural language time parsing on the command line.    
+
+Works on my machine with Python 2.7. 
 
 ### Examples
 
