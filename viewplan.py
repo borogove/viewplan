@@ -186,10 +186,8 @@ def present_plan( options, targets ):
              
     # TODO -- sort them West-to-East
                                                     
-    print u"\nPLAN FOR %s UTC"%(options.start_time)
-
-    print u"%20s  %13s  %13s  %4s  %6s  %20s "%("Name","Azimuth","Altitude","Mag","Eyepc","Desc") 
-    print u"%20s  %13s  %13s  %4s  %6s  %20s "%("-"*20,"-"*13,"-"*13,"-"*4,"-"*6,"-"*20) 
+    print u"%20s  %13s  %13s  %5s  %6s  %20s "%("Name","Azimuth","Altitude","Mag","Eyepc","Description") 
+    print u"%20s  %13s  %13s  %5s  %6s  %20s "%("-"*20,"-"*13,"-"*13,"-"*5,"-"*6,"-"*20) 
 
     for desc,body in observed_targets:
         commonName = body.name.split('|')[0]
@@ -202,7 +200,7 @@ def present_plan( options, targets ):
         azi = convert_dms(body.az)
         alt = convert_dms(body.alt)
         
-        print u"%20s  %13s  %13s  %4.1f  %6s  %20s"%(commonName,azi,alt,body.mag,eyepiece,desc)                      
+        print u"%20s  %13s  %13s  %5.1f  %6s  %20s"%(commonName,azi,alt,body.mag,eyepiece,desc)                      
                        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -213,7 +211,7 @@ if __name__ == "__main__":
     parser.add_argument( '--lon', help="longitude to observe from (degrees:minutes:seconds, positive East) ", default="-122:16:51.6"  )
     parser.add_argument( '--elevation', help="elevation to observe from (m)", default=14 )
     # Specify a time window for the viewing plan, using natural language relative time specifications
-    parser.add_argument( '--start', help="time to start the plan", default="in 2 hours" )
+    parser.add_argument( '--start', help="time to start the plan", default="in 1 hour" )
     #parser.add_argument( '--end', help="time to end the plan", default="in 3 hours" )
     # Control categories of viewing targets.
     parser.add_argument( '--stars', help="include interesting stars in plan", action='store_const',const=True,default=False )
@@ -221,11 +219,13 @@ if __name__ == "__main__":
     parser.add_argument( '--dsos', help="include nebulae and other DSOs in plan", action='store_const',const=True,default=True )
     # Avoid listing many very dim targets. 
     parser.add_argument( '--starlimit', help="magnitude limit for stars", type=float,default=2.5 )
-    parser.add_argument( '--dsolimit', help="magnitude limit for DSOs", type=float,default=6 )                  
+    parser.add_argument( '--dsolimit', help="magnitude limit for DSOs", type=float,default=5 )                  
     # Limit minimum and maximum elevation altitudes. Viewing sites with surrounding trees or walls 
     # restrict the minimum practical elevation, while scope mounts may limit the maximum elevation. 
     parser.add_argument( '--minalt', help="minimum observation altitude (degrees elevation)", default=20 )
     parser.add_argument( '--maxalt', help="maximum observation altitude (degrees elevation)", default=70 )
+    
+    # TODO add an RA/dec display option
         
     options = parser.parse_args( sys.argv[1:] )  
 
