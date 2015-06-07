@@ -16,8 +16,9 @@ it impossible to see faint clusters, but you wouldn't mind seeing some bright do
 stars.  
 
 ~~~
-python viewplan.py --city Boston --start "in 15 minutes" 
+: python viewplan.py --city Boston --start "in 15 minutes" 
         --planets --dsos --dsolimit 4 --stars --starlimit 1.8
+
 Your viewing plan:
  viewing from 2015/6/7 05:45:26 (UTC)
  viewing from Boston
