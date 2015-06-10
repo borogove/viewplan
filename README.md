@@ -18,7 +18,7 @@ Works on my machine with Python 2.7.
 ### Examples
 
 You're near Boston, you want to start watching right away, light pollution is making 
-it impossible to see faint clusters, but you wouldn't mind seeing some bright double 
+it impossible to see faint nebulae, but you wouldn't mind seeing some bright double 
 stars.  
 
 ~~~
