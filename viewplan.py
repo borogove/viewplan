@@ -178,18 +178,29 @@ def present_plan( options, targets ):
     observer = make_observer( options, options.start_time )      
      
     # Restrict the targets to those within the specified altitudes
-    observed_targets = []
+    located = []
     for desc,body in targets:
         body.compute(observer)
-        if body_in_altitude_range(body,options.minalt,options.maxalt):
-            observed_targets.append( (desc,body) )
-             
-    # TODO -- sort them West-to-East
-                                                    
+        if body_in_altitude_range(body,options.minalt,options.maxalt):            
+            # Convert coordinates. 
+            # Treat alt-azimuth as polar coordinates, with the alt angle (decreasing) 
+            # as the radius (increasing). 
+            # Convert that polar coordinate to rectangular.
+            r = 90.0-math.degrees(body.alt)
+            # Azimuth is radians east of north, that is, clockwise from 12:00. 
+            # Thus y is positive north, x positive east.
+            y = math.cos( body.az ) * r
+            x = math.sin( body.az ) * r
+            located.append( ((x,y),desc,body) ) 
+        
+    located.sort( key=lambda ((x,y),d,b): -x )
+    
+    # TODO - do a windowed traveling-salesman sort.    
+                                 
     print u"%20s  %13s  %13s  %5s  %6s  %20s "%("Name","Azimuth","Altitude","Mag","Eyepc","Description") 
     print u"%20s  %13s  %13s  %5s  %6s  %20s "%("-"*20,"-"*13,"-"*13,"-"*5,"-"*6,"-"*20) 
 
-    for desc,body in observed_targets:
+    for (x,y),desc,body in located:
         commonName = body.name.split('|')[0]
         
         if "star" in desc:

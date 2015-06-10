@@ -1,6 +1,10 @@
 ## Viewplan
 
-Viewplan is a Python script for generating telescope viewing plans for amateur astronomers. It lets you specify the time and location for the viewing, and various constraints on the target; it provides RA, declination, and other information for each target. 
+Viewplan is a Python script for generating telescope viewing plans for amateur astronomers. 
+
+You specify the time and location for the viewing, and what sort of objects you're interested in; the program selects a list of viewable objects for the specified time and location, and generates a viewing plan with azimuth, altitude, and other information for each target. 
+
+The output is sorted from West to East, so by visiting the targets in the given order you can avoid one setting while you're looking at another. 
 
 ### Dependencies
 
@@ -82,8 +86,7 @@ Only targets whose altitude (elevation angle) are within a set range will be sho
 * Add an option to display RA and declination instead of altitude and azimuth.
 * Add an option to display good candidate stars for alignment.
 * Allow the user to specify what eyepiece focal lengths they have available.
-* Sort the targets west-to-east so you can catch them before they set.
-* Sort the targets to reduce total scope slew time while still working generally west-to-east, without going full Traveling Salesman.
+* Sort the targets to reduce total scope slew distance while still working generally west-to-east, without going full Traveling Salesman.
 * Add an end time option, allowing targets to be considered which are below the eastern horizon at the start of the plan.
 
 
