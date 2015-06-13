@@ -214,7 +214,7 @@ def optimize_order( located ):
 
     # Sort west-to-east to start; western targets will be first 
     # lost below the horizon.
-    located.sort( key=lambda ((x,y),d,b): -x )
+    located.sort( key=lambda ((x,y),d,b): x )
     
     # If the list is long, split it into two smaller lists 
     # and optimize each one separately.
