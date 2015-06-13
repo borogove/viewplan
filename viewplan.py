@@ -8,7 +8,8 @@ Use the PyEphem package to develop a plan for an evening's stargazing.
 import sys
 import math
 import time
-import argparse 
+import argparse
+import itertools 
 
 import parsedatetime
 from ephem import *      
@@ -169,8 +170,87 @@ def eyepiece_for_size( size ):
     if mm < 3:
         mm = 3   
     
-    return "%dmm"%mm    
+    return "%dmm"%mm  
+
+# We want to sort the viewing target list in generally West-to-East order, 
+# but with a goal of reducing the total path length, like a traveling 
+# salesman problem. A strict W-E order could require the viewer to zigzag 
+# North-and-South a lot. 
+
+# Since the naive approach to the traveling salesman problem is factorial
+# time, we will do an initial ordering West to East, then recursively 
+# subdivide the problem into sets small enough to handle quickly. This 
+# helps maintain the W-E order as well as speeding up the algorithm.
+
+# Strangely, on a big set, I get an immediate solution for limit 11 (a 
+# small fraction of a second), but limit 12 takes longer than I care to wait;
+# Traveling salesman should be factorial time, so limit 12 should take only ~12 
+# times as long as limit 11. Since I don't understand the dramatic difference
+# (cache blown?), I'll leave this at a conservative 10. 
+OPTIMIZATION_SUBDIVIDE_LIMIT = 10
+
+def path_length( candidate ): 
+    # Here, candidate is a list of ((x,y),description,body) tuples.
     
+    # Path length accumulator.
+    d = 0 
+    
+    # Find the path length, using the x-y coordinate system we used for 
+    # W-E ordering.
+    for i,rec in enumerate(candidate[:-1]):
+        # This element.
+        ((x0,y0),d0,b0) = rec
+        # Next element.
+        ((x1,y1),d1,b1) = candidate[i+1]
+        # Pythagorean distance between.
+        d += math.hypot( x1-x0, y1-y0 )
+        
+    return d
+        
+def optimize_order( located ): 
+    # Here, located is a list of ((x,y),description,body) tuples.
+    # On top-level call it's the full list of targets; on
+    # recursive calls it will be a copy of a slice of the list.
+
+    # Sort west-to-east to start; western targets will be first 
+    # lost below the horizon.
+    located.sort( key=lambda ((x,y),d,b): -x )
+    
+    # If the list is long, split it into two smaller lists 
+    # and optimize each one separately.
+    count = len(located)
+    if count > OPTIMIZATION_SUBDIVIDE_LIMIT:
+        # Split the list. Put the pivot into
+        # both sublists, so the first one doesn't 
+        # end far from where the second one starts.
+        half = count//2
+        a = located[:half+1]
+        b = located[half:] 
+        # But take the duplicate out when building the combined list.        
+        return optimize_order(a[:-1]) + optimize_order(b)
+             
+    # This list or sublist is small enough to exhaustively 
+    # optimize. Keep the endpoints unchanged, but consider
+    # all the intermediate pathing options.    
+    
+    # Find the best candidate
+    best_candidate = None
+    best_length = 1e10
+    # The middle part of the list is what we vary.
+    middle = located[1:-1]   
+    # Iterate over all possible permutations
+    for perm in itertools.permutations( middle ):
+        # Build a candidate ordering from the permutation.
+        candidate = [located[0]] + list(perm) + [located[-1]]
+        # Find the path length.
+        l = path_length( candidate )
+        # Is it best so far?
+        if l < best_length:
+            best_length = l
+            best_candidate = candidate
+
+    return best_candidate
+
 def present_plan( options, targets ):
     # Present the viewing plan.
     
@@ -192,10 +272,8 @@ def present_plan( options, targets ):
             y = math.cos( body.az ) * r
             x = math.sin( body.az ) * r
             located.append( ((x,y),desc,body) ) 
-        
-    located.sort( key=lambda ((x,y),d,b): -x )
     
-    # TODO - do a windowed traveling-salesman sort.    
+    located = optimize_order( located )            
                                  
     print u"%20s  %13s  %13s  %5s  %6s  %20s "%("Name","Azimuth","Altitude","Mag","Eyepc","Description") 
     print u"%20s  %13s  %13s  %5s  %6s  %20s "%("-"*20,"-"*13,"-"*13,"-"*5,"-"*6,"-"*20) 
@@ -251,9 +329,7 @@ if __name__ == "__main__":
 
     # end_st,kind = cal.parse(options.end)
     # options.end_time = get_ephem_time( time.mktime(end_st) )  
-    
-                 
-    
+        
     print "Your viewing plan:"
     #print " viewing from %s until %s (UTC)"%(options.start_time,options.end_time)
     print " viewing from %s (UTC)"%(options.start_time)
