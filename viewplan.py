@@ -5,6 +5,7 @@
 Use the PyEphem package to develop a plan for an evening's stargazing.
 """       
 
+import re
 import sys
 import math
 import time
@@ -273,12 +274,31 @@ def present_plan( options, targets ):
             x = math.sin( body.az ) * r
             located.append( ((x,y),desc,body) ) 
     
-    located = optimize_order( located )            
+    located = optimize_order( located ) 
+    
+    # Now redo each body over the time span of the viewing session.
+    count = len(located)
+             
+    if options.end_time > options.start_time:
+        session_length = options.end_time-options.start_time
+        interval = session_length / count
+    else:
+        # If end time wasn't given, allow 5 minutes per target.
+        interval = (5.0/1440.0)
+    
+    # When converting from localtime to GMT and back in the Pyephem date 
+    # format, we can incur a rounding error which makes a 9pm start time
+    # show as 8:59 in the plan. We add in a little fudge factor here and
+    # present only hours and minutes in the plan to keep things looking 
+    # good.
+    t = date(options.start_time  + 0.0002)
                                  
-    print u"%20s  %13s  %13s  %5s  %6s  %20s "%("Name","Azimuth","Altitude","Mag","Eyepc","Description") 
-    print u"%20s  %13s  %13s  %5s  %6s  %20s "%("-"*20,"-"*13,"-"*13,"-"*5,"-"*6,"-"*20) 
+    print u"%5s  %20s  %13s  %13s  %5s  %6s  %20s "%("Time", "Name","Azimuth","Altitude","Mag","Eyepc","Description") 
+    print u"%5s  %20s  %13s  %13s  %5s  %6s  %20s "%("-"*5,"-"*20,"-"*13,"-"*13,"-"*5,"-"*6,"-"*20) 
 
     for (x,y),desc,body in located:
+        observer.date = t
+        body.compute(observer)
         commonName = body.name.split('|')[0]
         
         if "star" in desc:
@@ -287,9 +307,13 @@ def present_plan( options, targets ):
             eyepiece = eyepiece_for_size(body.size)        
          
         azi = convert_dms(body.az)
-        alt = convert_dms(body.alt)
+        alt = convert_dms(body.alt) 
         
-        print u"%20s  %13s  %13s  %5.1f  %6s  %20s"%(commonName,azi,alt,body.mag,eyepiece,desc)                      
+        m = re.search( r"(\d\d:\d\d:\d\d)", "%s"%(localtime(t)) )
+        time_rep = m.group(0)[:-3]
+        print u"%5s %20s  %13s  %13s  %5.1f  %6s  %20s"%(time_rep,commonName,azi,alt,body.mag,eyepiece,desc)
+        
+        t = date(t+interval)
                        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -301,7 +325,7 @@ if __name__ == "__main__":
     parser.add_argument( '--elevation', help="elevation to observe from (m)", default=14 )
     # Specify a time window for the viewing plan, using natural language relative time specifications
     parser.add_argument( '--start', help="time to start the plan", default="in 1 hour" )
-    #parser.add_argument( '--end', help="time to end the plan", default="in 3 hours" )
+    parser.add_argument( '--end', help="time to end the plan", default="in 2 hours" )
     # Control categories of viewing targets.
     parser.add_argument( '--stars', help="include interesting stars in plan", action='store_true',default=False )
     parser.add_argument( '--planets', help="include planets and the moon in plan", action='store_true',default=False )
@@ -327,8 +351,13 @@ if __name__ == "__main__":
     start_st,_ = cal.parse(options.start)
     options.start_time = get_ephem_time( time.mktime(start_st) )
 
-    # end_st,kind = cal.parse(options.end)
-    # options.end_time = get_ephem_time( time.mktime(end_st) )  
+    end_st,kind = cal.parse(options.end)
+    options.end_time = get_ephem_time( time.mktime(end_st) )
+    
+    if options.end_time < options.start_time:
+        # if not present or not valid, make the end time the same as the start time; we'll 
+        # make it sane later. 
+        options.end_time = options.start_time
         
     print "Your viewing plan:"
     #print " viewing from %s until %s (UTC)"%(options.start_time,options.end_time)
