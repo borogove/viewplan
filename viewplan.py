@@ -159,7 +159,7 @@ def eyepiece_for_size( size ):
     # jitter) with good optical quality; otherwise you would want one that 
     # properly encompasses the target.
                     
-    if body.size < 1:
+    if size < 1:
         return " "
         
     # The FOV to focal length ratio is different for different eyepieces, 
