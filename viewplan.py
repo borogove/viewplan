@@ -274,7 +274,8 @@ def present_plan( options, targets ):
             x = math.sin( body.az ) * r
             located.append( ((x,y),desc,body) ) 
     
-    located = optimize_order( located ) 
+    if len(located) > 1:
+        located = optimize_order( located ) 
     
     # Now redo each body over the time span of the viewing session.
     count = len(located)
