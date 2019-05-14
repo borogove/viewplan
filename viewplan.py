@@ -318,11 +318,11 @@ def present_plan( options, targets ):
                        
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    # Specify the location being observed from. Defaults to my backyard in Oakland; you can 
-    # specify either one of PyEphem's known cities, or a latitude/longitude.
+    # Specify the location being observed from. Defaults to my backyard in Crockett, CA; 
+    # you can specify either one of PyEphem's known cities, or a latitude/longitude.
     parser.add_argument( '--city', help="city to observe from", default=None )
-    parser.add_argument( '--lat', help="latitude to observe from (degrees:minutes:seconds)", default="37:50:15.3" )
-    parser.add_argument( '--lon', help="longitude to observe from (degrees:minutes:seconds, positive East) ", default="-122:16:51.6"  )
+    parser.add_argument( '--lat', help="latitude to observe from (degrees:minutes:seconds)", default="38:03:14.8" )
+    parser.add_argument( '--lon', help="longitude to observe from (degrees:minutes:seconds, positive East) ", default="-122:12:47.4"  )
     parser.add_argument( '--elevation', help="elevation to observe from (m)", default=14 )
     # Specify a time window for the viewing plan, using natural language relative time specifications
     parser.add_argument( '--start', help="time to start the plan", default="in 1 hour" )
