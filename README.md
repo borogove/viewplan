@@ -67,7 +67,7 @@ The viewing location can be provided either with a city name such as `--city Bos
 
 The city name must be one of the (relatively few) cities in the PyEphem database. Latitude and longitude are given in "degrees:minutes:seconds" format (positive longitude east), and elevation in meters above sea level.  
 
-If neither city nor coordinates are given, the script assumes you're viewing from my backyard in Oakland, CA.
+If neither city nor coordinates are given, the script assumes you're viewing from my backyard in Crockett, CA.
 
 ##### Time Options
 
